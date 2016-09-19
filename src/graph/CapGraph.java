@@ -20,13 +20,16 @@ public class CapGraph implements Graph {
 	}
 
 
+	public HashMap<Integer, HashSet<Integer>> getGraph() {
+		return theGraph;
+	}
+
+
 	/* (non-Javadoc)
 	 * @see graph.Graph#addVertex(int)
 	 */
 	@Override
-
 	public void addVertex(int num) {
-		// TODO Auto-generated method stub
 
 		if(theGraph.containsKey(num)) {
 			return;
@@ -40,7 +43,6 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public void addEdge(int from, int to) {
-		// TODO Auto-generated method stub
 
 		if(!theGraph.containsKey(from) || !theGraph.containsKey(to)) {
 			//System.out.println("One of the vertices doesn't exist.");
@@ -104,8 +106,104 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public List<Graph> getSCCs() {
-		// TODO Auto-generated method stub
-		return null;
+
+		// 1. DFS(G), keeping track of the order in which vertices finish
+		Stack<Integer> vertices = getVertices();
+
+		Stack<Integer> finished = DepthFirstSearch.DepthFirstSearch(this, vertices);
+
+		// 2. Compute the transpose of G
+		CapGraph transposeGraph = getTransposeGraph(this);
+
+
+		// 3.  DFS(G-transpose), exploring in the reverse order of finish time from step 1.
+		// 		Each tree found forms a SCC.
+		return findSCC(transposeGraph, vertices);
+
+	}
+
+
+	private List<Graph> findSCC(CapGraph graph, Stack<Integer> vertices) {
+
+		List<Graph> scc = new ArrayList<>();
+
+		// Initialize set and stack finished
+		Stack<Integer> finished = new Stack<>();
+		HashSet<Integer> visited = new HashSet<>();
+
+		while(!vertices.isEmpty()) {
+			Integer vertex = vertices.pop();
+
+			if(!visited.contains(vertex)) {
+
+				// Everytime to do a DFS-Visit, it forms the start of our SCC Tree
+				DepthFirstSearch.DepthFirstSearch_Visit(this, vertex, visited, finished);
+
+				// Then we basically have to go through the neighbors and build the new SCC graph
+				CapGraph sccGraph = new CapGraph();
+
+				for(Integer node : finished) {
+					sccGraph.addVertex(node);
+				}
+
+				// Now go through their friends, adding edges for each node that is connected.
+				for(Integer node : finished) {
+					HashSet<Integer> moreFriends = theGraph.get(node);
+
+					for (Integer friendNode : moreFriends) {
+						if(finished.contains(friendNode))
+							sccGraph.addEdge(friendNode, node);
+
+					}
+				}
+				finished = null;
+
+				// We have completed another SCC, so add it to the list
+				scc.add(sccGraph);
+			}
+		}
+
+		return scc;
+	}
+
+	// Transpose is just the graph with all of the edges flipped.
+	private CapGraph getTransposeGraph(CapGraph graph) {
+
+		CapGraph transposeGraph = new CapGraph();
+
+		Set<Integer> friends = theGraph.keySet();
+
+		// Go through all of the friends again, and add them to the new graph
+		for(Integer node : friends) {
+			transposeGraph.addVertex(node);
+		}
+
+		// Now go through their friends, adding edges for each node that is connected.
+		for(Integer node : friends) {
+			HashSet<Integer> moreFriends = theGraph.get(node);
+
+			for (Integer friendNode : moreFriends) {
+
+				// Switch order in which nodes are added, thus switching direction and "transposing".
+				transposeGraph.addEdge(friendNode, node);
+
+			}
+		}
+
+
+		return transposeGraph;
+
+
+	}
+
+	private Stack<Integer> getVertices() {
+
+		Stack<Integer> vertices = new Stack<>();
+
+		for(Integer vertex : theGraph.keySet()) {
+			vertices.push(vertex);
+		}
+		return vertices;
 	}
 
 	/* (non-Javadoc)

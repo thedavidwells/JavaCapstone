@@ -5,6 +5,7 @@
 import graph.CapGraph;
 import graph.Graph;
 import org.junit.*;
+import util.GraphLoader;
 
 import static org.junit.Assert.*;
 
@@ -27,6 +28,30 @@ public class graphTest {
         myGraph.exportGraph();
 
         Assert.assertNotNull(myGraph);
+    }
+
+
+    @Test
+    public void testGraphLoaderSmallTestGraph() {
+
+        Graph loaderGraph = new CapGraph();
+
+        GraphLoader.loadGraph(loaderGraph, "data/small_test_graph.txt");
+
+        Assert.assertNotNull(loaderGraph);
+    }
+
+
+    @Test
+    public void testGraphLoaderFacebook() {
+
+        Graph loaderGraph = new CapGraph();
+
+        GraphLoader.loadGraph(loaderGraph, "data/facebook_1000.txt");
+
+        loaderGraph.exportGraph();
+
+        Assert.assertNotNull(loaderGraph);
     }
 
 

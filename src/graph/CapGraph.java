@@ -3,10 +3,7 @@
  */
 package graph;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Your name here.
@@ -46,14 +43,12 @@ public class CapGraph implements Graph {
 		// TODO Auto-generated method stub
 
 		if(!theGraph.containsKey(from) || !theGraph.containsKey(to)) {
+			//System.out.println("One of the vertices doesn't exist.");
 			throw new RuntimeException("One of the vertices doesn't exist.");
 		}
 
-		HashSet<Integer> fromNode = theGraph.get(from);
-		HashSet<Integer> toNode = theGraph.get(to);
+		theGraph.get(from).add(to);
 
-		fromNode.add(to);
-		toNode.add(from);
 	}
 
 	/* (non-Javadoc)
@@ -61,8 +56,47 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public Graph getEgonet(int center) {
-		// TODO Auto-generated method stub
-		return null;
+
+		// Create a new graph
+		Graph egoNetGraph = new CapGraph();
+
+		// If the existing graph doesn't contain the key, return an empty graph.
+		if(!theGraph.containsKey(center)) {
+			return egoNetGraph;
+		}
+
+		// Add the center as the first vertex in the new egonet graph
+		egoNetGraph.addVertex(center);
+
+		// Get friends of the center node
+		HashSet<Integer> friends = theGraph.get(center);
+
+		// If the center node has no friends, return the graph
+		if(friends == null) {
+			return egoNetGraph;
+		}
+
+
+		// For every friend, add connected node to new egoNetGraph
+		for(Integer node : friends) {
+			egoNetGraph.addVertex(node);
+			egoNetGraph.addEdge(center, node);
+		}
+
+		// Now go through friends again, adding edges for each node that is connected.
+		for(Integer node : friends) {
+			HashSet<Integer> moreFriends = theGraph.get(node);
+
+			for (Integer friendNode : moreFriends) {
+				if(friendNode == center || friends.contains(friendNode)){
+
+					egoNetGraph.addEdge(node, friendNode);
+				}
+			}
+		}
+
+
+		return egoNetGraph;
 	}
 
 	/* (non-Javadoc)

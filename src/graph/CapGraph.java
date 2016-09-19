@@ -113,12 +113,12 @@ public class CapGraph implements Graph {
 		Stack<Integer> finished = DepthFirstSearch.DepthFirstSearch(this, vertices);
 
 		// 2. Compute the transpose of G
-		CapGraph transposeGraph = getTransposeGraph(this);
+		CapGraph transposeGraph = getTransposeGraph();
 
 
 		// 3.  DFS(G-transpose), exploring in the reverse order of finish time from step 1.
 		// 		Each tree found forms a SCC.
-		return findSCC(transposeGraph, vertices);
+		return findSCC(transposeGraph, finished);
 
 	}
 
@@ -137,7 +137,7 @@ public class CapGraph implements Graph {
 			if(!visited.contains(vertex)) {
 
 				// Everytime to do a DFS-Visit, it forms the start of our SCC Tree
-				DepthFirstSearch.DepthFirstSearch_Visit(this, vertex, visited, finished);
+				DepthFirstSearch.DepthFirstSearch_Visit(graph, vertex, visited, finished);
 
 				// Then we basically have to go through the neighbors and build the new SCC graph
 				CapGraph sccGraph = new CapGraph();
@@ -156,7 +156,7 @@ public class CapGraph implements Graph {
 
 					}
 				}
-				finished = null;
+				finished = new Stack<>();
 
 				// We have completed another SCC, so add it to the list
 				scc.add(sccGraph);
@@ -167,7 +167,7 @@ public class CapGraph implements Graph {
 	}
 
 	// Transpose is just the graph with all of the edges flipped.
-	private CapGraph getTransposeGraph(CapGraph graph) {
+	private CapGraph getTransposeGraph() {
 
 		CapGraph transposeGraph = new CapGraph();
 
@@ -201,7 +201,7 @@ public class CapGraph implements Graph {
 		Stack<Integer> vertices = new Stack<>();
 
 		for(Integer vertex : theGraph.keySet()) {
-			vertices.push(vertex);
+			vertices.add(vertex);
 		}
 		return vertices;
 	}

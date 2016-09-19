@@ -39,7 +39,9 @@ public class SCCGrader extends Grader {
         boolean infinite = false;
         while (thread.isAlive()) {
             if (System.currentTimeMillis() > endTime) {
-                thread.stop();
+                Thread t = thread;
+                thread = null;
+                t.interrupt();
                 infinite = true;
                 break;
             }

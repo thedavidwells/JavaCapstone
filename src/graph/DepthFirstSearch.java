@@ -41,7 +41,7 @@ public class DepthFirstSearch {
         for(Integer neighbor : theGraph.getGraph().get(vertex)) {
 
             if(!visited.contains(neighbor)) {
-                DepthFirstSearch_Visit(theGraph, vertex, visited, finished);
+                DepthFirstSearch_Visit(theGraph, neighbor, visited, finished);
             }
         }
 
